@@ -1,0 +1,89 @@
+@import "tailwindcss";
+
+@theme {
+  --font-display: "Unbounded", system-ui, sans-serif;
+  --font-sans: "Plus Jakarta Sans", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+  --color-obsidian: #07050d;
+  --color-violet-accent: #8b5cf6;
+  --color-violet-soft: #a78bfa;
+  --color-gold-accent: #d4af37;
+}
+
+@layer base {
+  html {
+    background-color: #07050d;
+    color: #f8fafc;
+    font-family: var(--font-sans);
+    scroll-behavior: auto;
+  }
+
+  body {
+    background-color: #07050d;
+    overflow-x: clip;
+  }
+}
+
+/* Custom typographic utility classes */
+.font-display {
+  font-family: var(--font-display);
+  letter-spacing: -0.04em;
+}
+
+.font-mono-label {
+  font-family: var(--font-mono);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+/* Subtle film-grain overlay (pointer-events none, compositor-friendly) */
+.film-grain {
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.045'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 180px 180px;
+}
+
+/* Metallic sheen sweep for loader logo */
+@keyframes goldSheen {
+  0% {
+    transform: translateX(-140%) skewX(-20deg);
+  }
+  100% {
+    transform: translateX(240%) skewX(-20deg);
+  }
+}
+
+.animate-gold-sheen {
+  animation: goldSheen 1.15s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* 3D Laptop Perspective Helpers */
+.laptop-perspective {
+  perspective: 1600px;
+  perspective-origin: 50% 45%;
+}
+
+.preserve-3d {
+  transform-style: preserve-3d;
+}
+
+/* Custom scrollbar for dark obsidian canvas */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #07050d;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(139, 92, 246, 0.32);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(167, 139, 250, 0.55);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-gold-sheen {
+    animation: none;
+  }
+}
