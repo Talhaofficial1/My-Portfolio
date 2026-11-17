@@ -1,70 +1,190 @@
 import { useRef, useState } from 'react';
-import { ArrowRight, ArrowUpRight, CheckCircle2, MessageCircle } from 'lucide-react';
+import {
+  AlertCircle,
+  ArrowRight,
+  ArrowUpRight,
+  CheckCircle2,
+  Loader2,
+  Mail,
+  MessageCircle,
+} from 'lucide-react';
 import { PROFILE } from '../data/portfolioData';
 import { SOCIAL_LINKS } from '../data/social';
 import type { InquiryPayload } from '../types/portfolio';
 import { SocialBrandIcon } from './SocialIcons';
 
+const DEFAULT_FORMSPREE_URL = 'https://formspree.io/f/xppddyje';
+const FORMSPREE_URL = (
+  import.meta.env.VITE_FORMSPREE_URL?.trim() || DEFAULT_FORMSPREE_URL
+).trim();
+
+const INITIAL_FORM: InquiryPayload = {
+  name: '',
+  email: '',
+  projectType: 'Web Development',
+  budget: '$500 – $1,500',
+  message: '',
+  website: '',
+};
+
+interface FormspreeErrorItem {
+  field?: string;
+  message?: string;
+  code?: string;
+}
+
+interface FormspreeResponse {
+  ok?: boolean;
+  next?: string;
+  error?: string;
+  errors?: FormspreeErrorItem[];
+}
+
 export function FinalCtaSection() {
   const nameInputRef = useRef<HTMLInputElement>(null);
-  const [form, setForm] = useState<InquiryPayload>({
-    name: '',
-    email: '',
-    projectType: 'Web Development',
-    budget: '$500 – $1,500',
-    message: '',
-  });
+  const [form, setForm] = useState<InquiryPayload>(INITIAL_FORM);
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showDirectFallback, setShowDirectFallback] = useState(false);
 
   const focusForm = () => {
     nameInputRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
     window.setTimeout(() => nameInputRef.current?.focus(), 350);
   };
 
+  const buildDirectMailto = () => {
+    const subject = encodeURIComponent(
+      form.name.trim()
+        ? `Portfolio inquiry from ${form.name.trim()} (${form.projectType})`
+        : `Portfolio inquiry (${form.projectType})`
+    );
+    const body = encodeURIComponent(
+      [
+        `Hi Muhammad Talha,`,
+        ``,
+        `Name: ${form.name.trim() || 'N/A'}`,
+        `Email: ${form.email.trim() || 'N/A'}`,
+        `Project Type: ${form.projectType}`,
+        `Estimated Budget: ${form.budget}`,
+        ``,
+        `Message:`,
+        form.message.trim() || '(Write your message here)',
+      ].join('\n')
+    );
+    return `mailto:${PROFILE.email}?subject=${subject}&body=${body}`;
+  };
+
+  const buildDirectWhatsApp = () => {
+    const text = encodeURIComponent(
+      form.message.trim()
+        ? `Assalamu Alaikum Talha, I'm ${form.name.trim() || 'a visitor'} (${form.projectType}, ${form.budget}). ${form.message.trim()}`
+        : `Assalamu Alaikum Talha, I would like to discuss a ${form.projectType} project.`
+    );
+    return `https://wa.me/${PROFILE.whatsappNumber}?text=${text}`;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+    setShowDirectFallback(false);
 
-    if (!form.name.trim() || !form.email.trim() || !form.message.trim()) {
-      setError('Please fill in your name, email address, and project message.');
+    // Honeypot anti-spam check: silently ignore automated bot submissions
+    if ((form.website || '').trim().length > 0) {
+      setForm(INITIAL_FORM);
+      setSubmitted(true);
       return;
     }
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(form.email.trim())) {
+    const cleanName = form.name.trim();
+    const cleanEmail = form.email.trim();
+    const cleanMessage = form.message.trim();
+
+    if (cleanName.length < 2) {
+      setError('Please enter your name (at least 2 characters).');
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+    if (!emailRegex.test(cleanEmail)) {
       setError('Please enter a valid email address.');
+      return;
+    }
+
+    if (cleanMessage.length < 10) {
+      setError('Please write a message of at least 10 characters so I can reply accurately.');
+      return;
+    }
+
+    if (!FORMSPREE_URL) {
+      const configError = 'Formspree endpoint URL is empty.';
+      console.error('Contact form submission failed:', configError);
+      setShowDirectFallback(true);
+      setError(
+        'The contact form endpoint is empty. Please click "Email me directly" or WhatsApp below so your message still reaches me right away.'
+      );
       return;
     }
 
     setSubmitting(true);
     try {
-      const response = await fetch('/api/contact', {
+      const response = await fetch(FORMSPREE_URL, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
+        body: JSON.stringify({
+          name: cleanName,
+          email: cleanEmail,
+          _replyto: cleanEmail,
+          _subject: `New message from ${cleanName} via portfolio`,
+          projectType: form.projectType,
+          budget: form.budget,
+          message: cleanMessage,
+          _gotcha: form.website || '',
+        }),
       });
 
-      if (!response.ok) {
-        const body = (await response.json().catch(() => ({}))) as { error?: string };
-        throw new Error(body.error || 'Request failed');
-      }
-      setSubmitted(true);
-    } catch {
-      // Offline / static frontend fallback: store inquiry locally so user flow never breaks
+      let body: FormspreeResponse | null = null;
       try {
-        const existing = JSON.parse(localStorage.getItem('talha_local_inquiries') || '[]');
-        existing.unshift({
-          ...form,
-          id: `local-${Date.now()}`,
-          createdAt: new Date().toISOString(),
-        });
-        localStorage.setItem('talha_local_inquiries', JSON.stringify(existing));
+        body = (await response.json()) as FormspreeResponse;
       } catch {
-        // Ignore storage errors
+        body = null;
       }
+
+      if (!response.ok) {
+        const realError =
+          body?.errors
+            ?.map((item) => item.message)
+            .filter(Boolean)
+            .join(', ') ||
+          body?.error ||
+          `HTTP ${response.status} ${response.statusText}`.trim();
+
+        console.error('Formspree contact form submission failed:', {
+          status: response.status,
+          endpoint: FORMSPREE_URL,
+          message: realError,
+          responseBody: body,
+        });
+
+        setShowDirectFallback(true);
+        setError(
+          `Could not send your message (${realError}). Please use "Email me directly" or WhatsApp below so your message is not lost.`
+        );
+        return;
+      }
+
+      setForm(INITIAL_FORM);
       setSubmitted(true);
+    } catch (err) {
+      const realError = err instanceof Error ? err.message : String(err);
+      console.error('Formspree contact form request error:', realError, err);
+      setShowDirectFallback(true);
+      setError(
+        `Unable to submit right now (${realError}). Use "Email me directly" or WhatsApp below so your message still reaches me immediately.`
+      );
     } finally {
       setSubmitting(false);
     }
@@ -179,38 +299,58 @@ export function FinalCtaSection() {
               <p className="font-mono-label text-[10px] text-[#A78BFA]">START A PROJECT</p>
               <h3 className="mt-1.5 text-xl font-bold text-white">Send a quick brief</h3>
             </div>
-            <span className="font-mono text-xs text-white/50">{PROFILE.email}</span>
+            <a
+              href={`mailto:${PROFILE.email}`}
+              className="font-mono text-xs text-white/55 transition-colors hover:text-[#A78BFA]"
+            >
+              {PROFILE.email}
+            </a>
           </div>
 
           {submitted ? (
-            <div className="flex flex-col items-center justify-center py-10 text-center">
-              <div className="flex h-14 w-14 items-center justify-center rounded-full border border-violet-400/35 bg-violet-500/15">
-                <CheckCircle2 className="h-7 w-7 text-[#A78BFA]" />
+            <div
+              role="status"
+              className="flex flex-col items-center justify-center rounded-xl border border-emerald-500/35 bg-emerald-500/10 px-6 py-10 text-center"
+            >
+              <div className="flex h-14 w-14 items-center justify-center rounded-full border border-emerald-400/40 bg-emerald-500/20">
+                <CheckCircle2 className="h-7 w-7 text-emerald-400" />
               </div>
-              <h4 className="mt-4 text-xl font-bold text-white">Inquiry received</h4>
-              <p className="mt-2 max-w-md text-sm text-white/65">
-                Thank you, {form.name}. I&apos;ve received your project details and will reply within
-                24 hours.
+              <h4 className="mt-4 text-xl font-bold text-emerald-200">Message sent!</h4>
+              <p className="mt-2 max-w-md text-sm font-medium text-emerald-300">
+                Thanks! Your message was sent. I will reply soon.
               </p>
               <button
                 type="button"
                 onClick={() => {
                   setSubmitted(false);
-                  setForm({
-                    name: '',
-                    email: '',
-                    projectType: 'Web Development',
-                    budget: '$500 – $1,500',
-                    message: '',
-                  });
+                  setError(null);
+                  setShowDirectFallback(false);
+                  setForm(INITIAL_FORM);
                 }}
-                className="mt-6 rounded-full border border-white/15 px-5 py-2 text-xs font-medium text-white/80 hover:border-violet-400/50 hover:text-white"
+                className="mt-6 rounded-full border border-emerald-400/35 bg-emerald-500/15 px-5 py-2 text-xs font-medium text-emerald-100 transition-colors hover:border-emerald-300/60 hover:bg-emerald-500/25"
               >
                 Send another message
               </button>
             </div>
           ) : (
-            <form onSubmit={handleSubmit} noValidate className="space-y-5">
+            <form onSubmit={handleSubmit} noValidate className="relative space-y-5">
+              {/* Honeypot anti-spam trap (hidden from humans & screen readers) */}
+              <div
+                aria-hidden="true"
+                className="pointer-events-none absolute -left-[9999px] h-0 w-0 overflow-hidden opacity-0"
+              >
+                <label htmlFor="contact-website">Leave this field blank</label>
+                <input
+                  id="contact-website"
+                  name="_gotcha"
+                  type="text"
+                  tabIndex={-1}
+                  autoComplete="off"
+                  value={form.website || ''}
+                  onChange={(e) => setForm({ ...form, website: e.target.value })}
+                />
+              </div>
+
               <div className="grid gap-5 sm:grid-cols-2">
                 <div>
                   <label htmlFor="contact-name" className="block text-xs font-medium text-white/75">
@@ -296,9 +436,37 @@ export function FinalCtaSection() {
               </div>
 
               {error && (
-                <p role="alert" className="text-xs font-medium text-rose-400">
-                  {error}
-                </p>
+                <div
+                  role="alert"
+                  className="rounded-xl border border-rose-500/35 bg-rose-500/10 p-4 text-xs text-rose-200"
+                >
+                  <div className="flex items-start gap-2.5">
+                    <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-rose-400" />
+                    <p className="leading-relaxed font-medium">{error}</p>
+                  </div>
+
+                  {showDirectFallback && (
+                    <div className="mt-3.5 flex flex-wrap items-center gap-2.5 pl-6">
+                      <a
+                        href={buildDirectMailto()}
+                        className="inline-flex min-h-[38px] items-center gap-1.5 rounded-full bg-[#8B5CF6] px-4 py-2 text-xs font-semibold text-white shadow-[0_0_20px_rgba(139,92,246,0.4)] transition-colors hover:bg-[#A78BFA]"
+                      >
+                        <Mail className="h-3.5 w-3.5" />
+                        <span>Email me directly</span>
+                      </a>
+
+                      <a
+                        href={buildDirectWhatsApp()}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex min-h-[38px] items-center gap-1.5 rounded-full border border-white/20 bg-white/[0.06] px-4 py-2 text-xs font-medium text-white transition-colors hover:border-violet-400/60 hover:bg-white/[0.12]"
+                      >
+                        <MessageCircle className="h-3.5 w-3.5 text-[#A78BFA]" />
+                        <span>WhatsApp ({PROFILE.whatsappDisplay})</span>
+                      </a>
+                    </div>
+                  )}
+                </div>
               )}
 
               <div className="flex justify-end">
@@ -307,8 +475,17 @@ export function FinalCtaSection() {
                   disabled={submitting}
                   className="inline-flex min-h-[44px] items-center gap-2 rounded-full bg-[#8B5CF6] px-7 py-2.5 text-sm font-semibold text-white shadow-[0_0_24px_rgba(139,92,246,0.4)] transition-all hover:bg-[#A78BFA] disabled:cursor-not-allowed disabled:opacity-60"
                 >
-                  <span>{submitting ? 'Sending...' : 'Send Project Brief'}</span>
-                  <ArrowRight className="h-4 w-4" />
+                  {submitting ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      <span>Sending...</span>
+                    </>
+                  ) : (
+                    <>
+                      <span>Send Project Brief</span>
+                      <ArrowRight className="h-4 w-4" />
+                    </>
+                  )}
                 </button>
               </div>
             </form>

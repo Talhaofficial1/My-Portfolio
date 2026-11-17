@@ -129,7 +129,9 @@ export default function App() {
     return DEFAULT_PROJECTS;
   });
 
-  const [adminOpen, setAdminOpen] = useState(false);
+  const [adminOpen, setAdminOpen] = useState<boolean>(() =>
+    typeof window !== 'undefined' && window.location.pathname === '/admin'
+  );
 
   // Sync projects from backend API when available, gracefully keeping fallback data if offline
   useEffect(() => {
@@ -150,11 +152,27 @@ export default function App() {
     };
   }, []);
 
+  const handleCloseAdmin = () => {
+    setAdminOpen(false);
+    if (window.location.pathname === '/admin') {
+      window.history.replaceState(null, '', '/');
+    }
+  };
+
   return (
     <BrowserRouter>
       <Routes>
         <Route
           path="/"
+          element={
+            <PortfolioHomePage
+              projects={projects}
+              onOpenAdmin={() => setAdminOpen(true)}
+            />
+          }
+        />
+        <Route
+          path="/admin"
           element={
             <PortfolioHomePage
               projects={projects}
@@ -189,7 +207,7 @@ export default function App() {
       <AdminPanelModal
         open={adminOpen}
         projects={projects}
-        onClose={() => setAdminOpen(false)}
+        onClose={handleCloseAdmin}
         onProjectsChange={(nextProjects) =>
           setProjects(nextProjects.length > 0 ? nextProjects : DEFAULT_PROJECTS)
         }

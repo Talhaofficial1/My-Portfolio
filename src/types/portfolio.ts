@@ -57,9 +57,16 @@ export interface InquiryPayload {
   projectType: string;
   budget: string;
   message: string;
+  website?: string;
 }
 
-export interface InquiryRecord extends InquiryPayload {
+export interface InquiryRecord {
   id: string;
+  name: string;
+  email: string;
+  projectType: string;
+  budget: string;
+  message: string;
+  read: boolean;
   createdAt: string;
 }
