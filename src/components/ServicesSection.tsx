@@ -15,7 +15,13 @@ function TiltServiceCard({ service }: { service: ServiceItem }) {
   const [tilt, setTilt] = useState({ rx: 0, ry: 0 });
 
   const handleMove = (e: React.PointerEvent<HTMLDivElement>) => {
-    if (reducedMotion || e.pointerType !== 'mouse') return;
+    if (
+      reducedMotion ||
+      e.pointerType !== 'mouse' ||
+      (typeof window !== 'undefined' && !window.matchMedia('(hover: hover) and (pointer: fine)').matches)
+    ) {
+      return;
+    }
     const rect = e.currentTarget.getBoundingClientRect();
     const px = (e.clientX - rect.left) / rect.width - 0.5;
     const py = (e.clientY - rect.top) / rect.height - 0.5;
@@ -31,7 +37,7 @@ function TiltServiceCard({ service }: { service: ServiceItem }) {
     <div
       onPointerMove={handleMove}
       onPointerLeave={resetTilt}
-      className="group relative flex h-full flex-col justify-between rounded-2xl border border-white/10 bg-white/[0.03] p-7 backdrop-blur-xl transition-transform duration-200 ease-out will-change-transform hover:border-violet-400/40 hover:bg-white/[0.05]"
+      className="hover-card-lift group relative flex h-full flex-col justify-between rounded-2xl border border-white/10 bg-white/[0.03] p-[clamp(1.25rem,2.5vw,1.75rem)] backdrop-blur-xl transition-transform duration-200 ease-out will-change-transform active:scale-[0.99]"
       style={{
         transform: `perspective(1000px) rotateX(${tilt.rx}deg) rotateY(${tilt.ry}deg)`,
       }}
@@ -66,23 +72,23 @@ export function ServicesSection() {
   return (
     <section
       id="services"
-      className="relative z-10 bg-[#07050d] px-5 py-24 sm:px-8 sm:py-32"
+      className="section-pad relative z-10 bg-[#07050d]"
     >
-      <div className="mx-auto max-w-6xl">
+      <div className="site-container">
         <div className="max-w-2xl">
           <p className="font-mono-label text-[11px] font-medium text-[#A78BFA]">
             SERVICES
           </p>
           <h2
             className="font-display mt-4 text-balance font-extrabold leading-[1.02] tracking-tight text-white"
-            style={{ fontSize: 'clamp(2rem, 5vw, 3.75rem)' }}
+            style={{ fontSize: 'clamp(1.85rem, 4.5vw, 3.75rem)' }}
           >
             Everything your brand needs{' '}
             <span className="text-[#A78BFA]">to launch.</span>
           </h2>
         </div>
 
-        <div className="mt-12 grid gap-6 md:grid-cols-3">
+        <div className="mt-10 grid grid-cols-1 gap-5 sm:mt-12 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3">
           {SERVICES.map((service) => (
             <TiltServiceCard key={service.id} service={service} />
           ))}

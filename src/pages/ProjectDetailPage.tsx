@@ -97,42 +97,17 @@ export function ProjectDetailPage({ projects, onOpenAdmin }: ProjectDetailPagePr
     }, 80);
   };
 
-  const handleHireMe = () => {
-    navigate('/');
-    window.setTimeout(() => {
-      document.querySelector('#contact')?.scrollIntoView({ behavior: 'smooth' });
-    }, 80);
-  };
-
   if (!project) {
     return (
-      <div className="flex min-h-screen flex-col justify-between bg-[#07050d] text-white">
-        <header className="border-b border-white/[0.08] bg-[#07050d]/90 py-4 backdrop-blur-xl">
-          <div className="mx-auto flex max-w-6xl items-center justify-between px-5 sm:px-8">
-            <Link to="/" className="flex items-center gap-3">
-              <span className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-lg border border-violet-400/35 bg-[#0e0a19] p-1">
-                <img
-                  src={PROFILE.assets.logo}
-                  alt="Muhammad Talha TS Logo"
-                  className="h-full w-full object-contain"
-                />
-              </span>
-              <span className="text-sm font-semibold text-white">{PROFILE.name}</span>
-            </Link>
-            <Link
-              to="/"
-              className="rounded-full bg-[#8B5CF6] px-5 py-2 text-xs font-semibold text-white hover:bg-[#A78BFA]"
-            >
-              Back to Portfolio
-            </Link>
-          </div>
-        </header>
-
-        <main className="mx-auto flex max-w-xl flex-col items-center px-5 py-28 text-center">
+      <div
+        style={{ paddingTop: 'var(--nav-h, 68px)' }}
+        className="flex min-h-[100svh] w-full max-w-full flex-col justify-between overflow-x-clip bg-[#07050d] text-white"
+      >
+        <main className="site-container flex max-w-xl flex-col items-center py-[clamp(4rem,10svh,7rem)] text-center">
           <p className="font-mono-label text-[11px] text-[#A78BFA]">404 · PROJECT</p>
           <h1
             className="font-display mt-4 font-extrabold text-white"
-            style={{ fontSize: 'clamp(2rem, 5vw, 3.25rem)' }}
+            style={{ fontSize: 'clamp(1.85rem, 5vw, 3.25rem)' }}
           >
             Project not <span className="text-[#A78BFA]">found.</span>
           </h1>
@@ -171,62 +146,15 @@ export function ProjectDetailPage({ projects, onOpenAdmin }: ProjectDetailPagePr
   const accentColor = project.accentColor || '#8B5CF6';
 
   return (
-    <div className="relative min-h-screen bg-[#07050d] text-white">
-      {/* Slim Top Bar */}
-      <header className="sticky top-0 z-50 border-b border-white/[0.08] bg-[#07050d]/85 py-3.5 backdrop-blur-xl">
-        <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-5 sm:px-8">
-          <Link
-            to="/"
-            className="group flex shrink-0 items-center gap-3 whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400"
-          >
-            <span
-              className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-lg border bg-[#0e0a19] p-1 transition-transform duration-200 group-hover:scale-105"
-              style={{
-                borderColor: `${accentColor}66`,
-                boxShadow: `0 0 20px ${accentColor}40`,
-              }}
-            >
-              <img
-                src={PROFILE.assets.logo}
-                alt="Muhammad Talha TS Logo"
-                className="h-full w-full object-contain"
-              />
-            </span>
-            <span className="text-sm font-semibold tracking-tight text-white/95">
-              {PROFILE.name}
-            </span>
-          </Link>
-
-          <div className="flex shrink-0 items-center gap-3">
-            <button
-              type="button"
-              onClick={handleBackToPortfolio}
-              className="inline-flex min-h-[40px] items-center gap-1.5 whitespace-nowrap rounded-full border border-white/15 bg-white/[0.03] px-4 py-2 text-xs font-medium text-white/85 transition-colors hover:border-white/35 hover:text-white"
-            >
-              <ArrowLeft className="h-3.5 w-3.5" style={{ color: accentColor }} />
-              <span>Back to Portfolio</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={handleHireMe}
-              className="hidden min-h-[40px] items-center whitespace-nowrap rounded-full px-5 py-2 text-xs font-semibold text-white transition-opacity hover:opacity-90 sm:inline-flex"
-              style={{
-                backgroundColor: accentColor,
-                boxShadow: `0 0 24px ${accentColor}55`,
-              }}
-            >
-              Hire Me
-            </button>
-          </div>
-        </div>
-      </header>
-
-      <main className="relative overflow-hidden">
+    <div
+      style={{ paddingTop: 'var(--nav-h, 68px)' }}
+      className="relative min-h-[100svh] w-full max-w-full overflow-x-clip bg-[#07050d] text-white"
+    >
+      <main className="relative overflow-x-clip">
         {/* Project-Specific Gradient Ambient Glow */}
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute top-0 left-1/2 h-[540px] w-[960px] -translate-x-1/2 rounded-full blur-3xl"
+          className="pointer-events-none absolute top-0 left-1/2 h-[480px] w-[min(960px,100%)] -translate-x-1/2 rounded-full blur-3xl"
           style={{
             background: `radial-gradient(circle, ${accentColor}38 0%, ${accentColor}14 45%, transparent 72%)`,
           }}
@@ -237,21 +165,32 @@ export function ProjectDetailPage({ projects, onOpenAdmin }: ProjectDetailPagePr
           initial={{ opacity: 0, y: 18 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-          className="relative z-10 mx-auto max-w-5xl px-5 pt-14 pb-10 text-center sm:px-8 sm:pt-20"
+          className="site-container relative z-10 pb-[clamp(2rem,5svh,3rem)] pt-[clamp(1.75rem,5svh,3.5rem)] text-center"
         >
+          <div className="mb-6 flex justify-center">
+            <button
+              type="button"
+              onClick={handleBackToPortfolio}
+              className="inline-flex min-h-[44px] items-center gap-1.5 whitespace-nowrap rounded-full border border-white/15 bg-white/[0.03] px-4 py-2 text-xs font-medium text-white/85 transition-colors hover:border-white/35 hover:text-white active:scale-95"
+            >
+              <ArrowLeft className="h-3.5 w-3.5" style={{ color: accentColor }} />
+              <span>Back to Portfolio</span>
+            </button>
+          </div>
+
           <p className="font-mono-label text-[11px] font-medium" style={{ color: accentColor }}>
             {project.category} · {project.year || '2026'}
           </p>
 
           <h1
-            className="font-display mx-auto mt-4 max-w-4xl text-balance font-extrabold leading-[1.02] tracking-tight text-white"
-            style={{ fontSize: 'clamp(2.25rem, 6vw, 4.75rem)' }}
+            className="font-display wrap-anywhere mx-auto mt-4 max-w-[min(100%,22ch)] text-balance font-extrabold leading-[1.02] tracking-tight text-white"
+            style={{ fontSize: 'clamp(1.85rem, min(5.5vw, 8svh), 4.75rem)' }}
           >
             {lead ? `${lead} ` : ''}
             <span style={{ color: accentColor }}>{accent}</span>
           </h1>
 
-          <p className="mx-auto mt-5 max-w-2xl text-base leading-relaxed text-white/75 sm:text-lg">
+          <p className="mx-auto mt-4 max-w-[60ch] text-base leading-relaxed text-white/75 sm:mt-5 sm:text-lg">
             {project.tagline}
           </p>
 
@@ -260,7 +199,7 @@ export function ProjectDetailPage({ projects, onOpenAdmin }: ProjectDetailPagePr
               {project.tags.map((tag) => (
                 <span
                   key={tag}
-                  className="rounded-full border bg-white/[0.04] px-3.5 py-1 font-mono text-[11px] text-white/85 backdrop-blur-md"
+                  className="wrap-anywhere rounded-full border bg-white/[0.04] px-3.5 py-1 font-mono text-[11px] text-white/85 backdrop-blur-md"
                   style={{ borderColor: `${accentColor}40` }}
                 >
                   {tag}
@@ -270,12 +209,12 @@ export function ProjectDetailPage({ projects, onOpenAdmin }: ProjectDetailPagePr
           )}
         </motion.section>
 
-        {/* Big Preview Inside Browser-Window Frame */}
+        {/* Big Preview Inside Browser-Window Frame (16:9 full container width) */}
         <motion.section
           initial={{ opacity: 0, scale: 0.96, y: 16 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           transition={{ duration: 0.45, delay: 0.08, ease: [0.16, 1, 0.3, 1] }}
-          className="relative z-10 mx-auto max-w-5xl px-5 pb-14 sm:px-8"
+          className="site-container relative z-10 pb-[clamp(2.5rem,6svh,3.75rem)]"
         >
           <div
             className="overflow-hidden rounded-[22px] border bg-[#0b0814]"
@@ -285,18 +224,18 @@ export function ProjectDetailPage({ projects, onOpenAdmin }: ProjectDetailPagePr
             }}
           >
             <div className="flex items-center justify-between gap-3 border-b border-white/[0.08] bg-[#100c1c] px-4 py-3 sm:px-6">
-              <div className="flex items-center gap-2">
+              <div className="flex shrink-0 items-center gap-2">
                 <span className="h-3 w-3 rounded-full bg-[#ff5f57]" />
                 <span className="h-3 w-3 rounded-full bg-[#febc2e]" />
                 <span className="h-3 w-3 rounded-full bg-[#28c840]" />
               </div>
 
-              <div className="mx-auto max-w-sm flex-1 truncate rounded-lg border border-white/[0.08] bg-[#07050d]/85 px-4 py-1 text-center font-mono text-xs text-white/65">
+              <div className="mx-auto min-w-0 max-w-sm flex-1 truncate rounded-lg border border-white/[0.08] bg-[#07050d]/85 px-4 py-1 text-center font-mono text-xs text-white/65">
                 {getDisplayHost(validLiveUrl, project.title)}
               </div>
 
               <span
-                className="hidden font-mono text-[10px] sm:inline"
+                className="hidden shrink-0 font-mono text-[10px] sm:inline"
                 style={{ color: accentColor }}
               >
                 {project.category}
@@ -304,7 +243,7 @@ export function ProjectDetailPage({ projects, onOpenAdmin }: ProjectDetailPagePr
             </div>
 
             <div
-              className="relative aspect-[16/10] w-full overflow-hidden bg-[#120d20]"
+              className="relative aspect-[16/9] w-full overflow-hidden bg-[#120d20]"
               style={{ background: project.gradient }}
             >
               {!previewError && !previewLoaded && !project.hasPerson && (
@@ -331,7 +270,7 @@ export function ProjectDetailPage({ projects, onOpenAdmin }: ProjectDetailPagePr
                 />
               ) : (
                 <div
-                  className="flex h-full w-full flex-col items-center justify-center p-8 text-center"
+                  className="flex h-full w-full flex-col items-center justify-center p-6 text-center sm:p-8"
                   style={{ background: project.gradient }}
                 >
                   <CategoryIcon
@@ -339,7 +278,9 @@ export function ProjectDetailPage({ projects, onOpenAdmin }: ProjectDetailPagePr
                     color={accentColor}
                     sizeClass="h-12 w-12"
                   />
-                  <p className="font-display mt-4 text-2xl font-bold text-white">{project.title}</p>
+                  <p className="font-display mt-4 text-xl font-bold text-white sm:text-2xl">
+                    {project.title}
+                  </p>
                   <p className="mt-2 max-w-md text-sm text-white/70">{project.tagline}</p>
                 </div>
               )}
@@ -349,7 +290,7 @@ export function ProjectDetailPage({ projects, onOpenAdmin }: ProjectDetailPagePr
 
         {/* Dedicated Video Section (shown when project has videoIds) */}
         {project.videoIds.length > 0 && activeVideoId && (
-          <section className="relative z-10 mx-auto max-w-5xl px-5 pb-14 sm:px-8">
+          <section className="site-container relative z-10 pb-[clamp(2.5rem,6svh,3.75rem)]">
             <div
               className="rounded-[22px] border bg-white/[0.03] p-5 backdrop-blur-xl sm:p-7"
               style={{ borderColor: `${accentColor}38` }}
@@ -372,7 +313,7 @@ export function ProjectDetailPage({ projects, onOpenAdmin }: ProjectDetailPagePr
                   href={`https://www.youtube.com/watch?v=${activeVideoId}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 font-mono text-xs hover:text-white"
+                  className="inline-flex min-h-[44px] items-center gap-1.5 font-mono text-xs hover:text-white"
                   style={{ color: accentColor }}
                 >
                   <span>Open on YouTube</span>
@@ -401,7 +342,7 @@ export function ProjectDetailPage({ projects, onOpenAdmin }: ProjectDetailPagePr
               </div>
 
               {project.videoIds.length > 1 && (
-                <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
+                <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
                   {project.videoIds.map((vid, idx) => {
                     const isActive = idx === activeVideoIndex;
                     return (
@@ -414,7 +355,7 @@ export function ProjectDetailPage({ projects, onOpenAdmin }: ProjectDetailPagePr
                             ? { borderColor: accentColor, boxShadow: `0 0 20px ${accentColor}40` }
                             : undefined
                         }
-                        className={`group relative aspect-video overflow-hidden rounded-xl border text-left transition-all ${
+                        className={`group relative aspect-video min-h-[44px] overflow-hidden rounded-xl border text-left transition-all ${
                           isActive
                             ? 'opacity-100'
                             : 'border-white/10 opacity-75 hover:border-white/35 hover:opacity-100'
@@ -427,8 +368,8 @@ export function ProjectDetailPage({ projects, onOpenAdmin }: ProjectDetailPagePr
                           className="h-full w-full object-cover"
                         />
                         <div className="absolute inset-0 flex items-center justify-center bg-black/35">
-                          <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[#07050d]/85 text-white">
-                            <Play className="ml-0.5 h-3.5 w-3.5 fill-white" />
+                          <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[#07050d]/85 text-white">
+                            <Play className="ml-0.5 h-4 w-4 fill-white" />
                           </span>
                         </div>
                         <span className="absolute bottom-1.5 left-2 rounded bg-black/75 px-1.5 py-0.5 font-mono text-[10px] text-white">
@@ -444,8 +385,8 @@ export function ProjectDetailPage({ projects, onOpenAdmin }: ProjectDetailPagePr
         )}
 
         {/* Details, Role, Tools, Stats & Action Buttons */}
-        <section className="relative z-10 mx-auto max-w-5xl px-5 pb-16 sm:px-8">
-          <div className="grid gap-6 lg:grid-cols-12">
+        <section className="site-container relative z-10 pb-[clamp(2.5rem,7svh,4.5rem)]">
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
             <div
               className="space-y-6 rounded-2xl border border-white/10 p-6 backdrop-blur-xl sm:p-8 lg:col-span-7"
               style={{ background: project.gradient }}
@@ -455,7 +396,7 @@ export function ProjectDetailPage({ projects, onOpenAdmin }: ProjectDetailPagePr
                   OVERVIEW
                 </p>
                 <h2 className="mt-2 text-xl font-bold text-white">About this project</h2>
-                <p className="mt-3 text-sm leading-relaxed text-white/80 sm:text-base">
+                <p className="wrap-anywhere mt-3 text-sm leading-relaxed text-white/80 sm:text-base">
                   {project.description}
                 </p>
               </div>
@@ -464,11 +405,13 @@ export function ProjectDetailPage({ projects, onOpenAdmin }: ProjectDetailPagePr
                 <p className="font-mono-label text-[10px]" style={{ color: accentColor }}>
                   WHAT I DID
                 </p>
-                <p className="mt-2 text-sm leading-relaxed text-white/85">{project.role}</p>
+                <p className="wrap-anywhere mt-2 text-sm leading-relaxed text-white/85">
+                  {project.role}
+                </p>
               </div>
 
               {project.stats && project.stats.length > 0 && (
-                <div className="grid grid-cols-3 gap-3 border-t border-white/[0.1] pt-5">
+                <div className="grid grid-cols-1 gap-3 border-t border-white/[0.1] pt-5 sm:grid-cols-3">
                   {project.stats.slice(0, 3).map((stat) => (
                     <div
                       key={stat.label}
@@ -511,7 +454,7 @@ export function ProjectDetailPage({ projects, onOpenAdmin }: ProjectDetailPagePr
                 </div>
               </div>
 
-              {/* Action Buttons */}
+              {/* Action Buttons (>=44px tap targets) */}
               <div className="space-y-3 border-t border-white/[0.08] pt-5">
                 {validLiveUrl && (
                   <a
@@ -548,13 +491,13 @@ export function ProjectDetailPage({ projects, onOpenAdmin }: ProjectDetailPagePr
                   rel="noopener noreferrer"
                   aria-label="YouTube"
                   title="YouTube"
-                  className="flex min-h-[44px] w-full items-center justify-center gap-2 rounded-full border border-white/15 bg-white/[0.04] px-5 py-2.5 text-sm font-medium text-white/90 transition-all duration-200 hover:-translate-y-0.5 hover:border-violet-400/60 hover:text-white hover:shadow-[0_0_20px_rgba(139,92,246,0.35)]"
+                  className="flex min-h-[44px] w-full items-center justify-center gap-2 rounded-full border border-white/15 bg-white/[0.04] px-5 py-2.5 text-sm font-medium text-white/90 transition-all duration-200 hover:border-violet-400/60 hover:text-white hover:shadow-[0_0_20px_rgba(139,92,246,0.35)]"
                 >
                   <Youtube className="h-4 w-4" style={{ color: accentColor }} />
                   <span>My YouTube Channel</span>
                 </a>
 
-                <div className="flex items-center justify-center gap-2.5 pt-2">
+                <div className="flex flex-wrap items-center justify-center gap-2.5 pt-2">
                   {SOCIAL_LINKS.map((item) => (
                     <a
                       key={item.id}
@@ -563,7 +506,7 @@ export function ProjectDetailPage({ projects, onOpenAdmin }: ProjectDetailPagePr
                       rel="noopener noreferrer"
                       aria-label={item.label}
                       title={item.label}
-                      className="flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-white/[0.03] text-white/75 transition-all duration-200 hover:-translate-y-0.5 hover:border-violet-400/60 hover:bg-violet-500/15 hover:text-white hover:shadow-[0_0_18px_rgba(139,92,246,0.45)]"
+                      className="hover-icon-float flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/[0.03] text-white/75 transition-all duration-200"
                     >
                       <SocialBrandIcon id={item.id} className="h-4 w-4" />
                     </a>
@@ -575,40 +518,44 @@ export function ProjectDetailPage({ projects, onOpenAdmin }: ProjectDetailPagePr
         </section>
 
         {/* Previous / Next Navigation + More Projects Row */}
-        <section className="relative z-10 mx-auto max-w-5xl border-t border-white/[0.08] px-5 py-14 sm:px-8">
+        <section className="site-container relative z-10 border-t border-white/[0.08] py-[clamp(2.5rem,6svh,3.75rem)]">
           {(prevProject || nextProject) && (
-            <div className="flex flex-wrap items-center justify-between gap-4 pb-12">
+            <div className="flex flex-col items-stretch justify-between gap-4 pb-12 sm:flex-row sm:flex-wrap sm:items-center">
               {prevProject ? (
                 <Link
                   to={`/project/${prevProject.id}`}
-                  className="group inline-flex items-center gap-3 rounded-xl border border-white/10 bg-white/[0.02] px-4 py-3 transition-colors hover:border-white/35"
+                  className="group inline-flex min-h-[56px] items-center gap-3 rounded-xl border border-white/10 bg-white/[0.02] px-4 py-3 transition-colors hover:border-white/35"
                 >
                   <ArrowLeft
-                    className="h-4 w-4 transition-transform group-hover:-translate-x-0.5"
+                    className="h-4 w-4 shrink-0 transition-transform group-hover:-translate-x-0.5"
                     style={{ color: prevProject.accentColor }}
                   />
-                  <div className="text-left">
+                  <div className="min-w-0 text-left">
                     <p className="font-mono text-[10px] uppercase text-white/45">
                       Previous project
                     </p>
-                    <p className="text-sm font-semibold text-white">{prevProject.title}</p>
+                    <p className="wrap-anywhere text-sm font-semibold text-white">
+                      {prevProject.title}
+                    </p>
                   </div>
                 </Link>
               ) : (
-                <div />
+                <div className="hidden sm:block" />
               )}
 
               {nextProject && (
                 <Link
                   to={`/project/${nextProject.id}`}
-                  className="group ml-auto inline-flex items-center gap-3 rounded-xl border border-white/10 bg-white/[0.02] px-4 py-3 text-right transition-colors hover:border-white/35"
+                  className="group inline-flex min-h-[56px] items-center justify-between gap-3 rounded-xl border border-white/10 bg-white/[0.02] px-4 py-3 text-right transition-colors hover:border-white/35 sm:ml-auto"
                 >
-                  <div>
+                  <div className="min-w-0 flex-1 text-left sm:text-right">
                     <p className="font-mono text-[10px] uppercase text-white/45">Next project</p>
-                    <p className="text-sm font-semibold text-white">{nextProject.title}</p>
+                    <p className="wrap-anywhere text-sm font-semibold text-white">
+                      {nextProject.title}
+                    </p>
                   </div>
                   <ArrowRight
-                    className="h-4 w-4 transition-transform group-hover:translate-x-0.5"
+                    className="h-4 w-4 shrink-0 transition-transform group-hover:translate-x-0.5"
                     style={{ color: nextProject.accentColor }}
                   />
                 </Link>
@@ -621,7 +568,7 @@ export function ProjectDetailPage({ projects, onOpenAdmin }: ProjectDetailPagePr
               <p className="font-mono-label text-[10px]" style={{ color: accentColor }}>
                 MORE PROJECTS
               </p>
-              <div className="mt-5 grid gap-5 sm:grid-cols-3">
+              <div className="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
                 {moreProjects.map((item) => {
                   const thumb = resolveProjectThumbnail(item);
                   const hasErr = moreImgErrors[item.id];
@@ -631,7 +578,7 @@ export function ProjectDetailPage({ projects, onOpenAdmin }: ProjectDetailPagePr
                       href={`/project/${encodeURIComponent(item.id)}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="group overflow-hidden rounded-2xl border bg-[#0d0917] transition-all duration-200 hover:-translate-y-0.5"
+                      className="hover-card-lift group overflow-hidden rounded-2xl border bg-[#0d0917] transition-all duration-200"
                       style={{
                         borderColor: `${item.accentColor}40`,
                         backgroundImage: item.gradient,
@@ -673,7 +620,7 @@ export function ProjectDetailPage({ projects, onOpenAdmin }: ProjectDetailPagePr
                           {item.category}
                           {item.tags[0] ? ` · ${item.tags[0]}` : ''}
                         </p>
-                        <h3 className="mt-1 flex items-center justify-between text-sm font-semibold text-white">
+                        <h3 className="mt-1 flex items-center justify-between gap-2 text-sm font-semibold text-white">
                           <span className="truncate">{item.title}</span>
                           <ArrowUpRight
                             className="h-4 w-4 shrink-0"

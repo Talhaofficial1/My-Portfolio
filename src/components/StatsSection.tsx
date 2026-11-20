@@ -68,19 +68,20 @@ export function StatsSection() {
     <section
       ref={sectionRef}
       aria-label="Key milestones"
-      className="relative z-10 border-y border-white/[0.07] bg-[#07050d] py-16 sm:py-20"
+      className="relative z-10 border-y border-white/[0.07] bg-[#07050d] py-[clamp(2.75rem,6svh,5rem)]"
     >
-      <div className="mx-auto grid max-w-6xl grid-cols-2 gap-y-10 gap-x-6 px-5 sm:px-8 lg:grid-cols-4">
+      <div className="site-container grid grid-cols-2 gap-x-6 gap-y-10 lg:grid-cols-4">
         {STATS.map((stat) => (
           <div key={stat.id} className="flex flex-col items-center text-center">
             <div
-              className="font-display tabular-nums bg-gradient-to-b from-white via-white to-[#A78BFA] bg-clip-text text-4xl font-extrabold text-transparent sm:text-5xl md:text-6xl"
+              className="font-display tabular-nums bg-gradient-to-b from-white via-white to-[#A78BFA] bg-clip-text font-extrabold text-transparent"
+              style={{ fontSize: 'clamp(1.85rem, 1rem + 3vw, 3.75rem)' }}
             >
               {stat.value !== null
                 ? `${counts[stat.id] ?? 0}${stat.suffix}`
                 : stat.displayFallback}
             </div>
-            <p className="font-mono-label mt-3 text-[10px] leading-relaxed text-white/55 sm:text-[11px]">
+            <p className="font-mono-label mt-3 max-w-[18ch] text-[10px] leading-relaxed text-white/55 sm:text-[11px]">
               {stat.label}
             </p>
           </div>

@@ -10,15 +10,33 @@ interface FeaturedWorkSectionProps {
   projects: ProjectItem[];
 }
 
-function getCardDimensions(layout: CardLayout, isMobile: boolean): { w: number; h: number } {
-  if (isMobile) {
-    if (layout === 'tall') return { w: 152, h: 204 };
-    if (layout === 'wide') return { w: 198, h: 146 };
-    return { w: 168, h: 168 };
+function clampVal(v: number, min: number, max: number): number {
+  return Math.min(max, Math.max(min, v));
+}
+
+function computeCardDimensions(
+  layout: CardLayout,
+  stageW: number,
+  stageH: number
+): { w: number; h: number } {
+  const isPhone = stageW < 640;
+  const isShortStage = stageH < 380;
+  const baseW = isPhone
+    ? clampVal(stageW * 0.42, 118, 210)
+    : clampVal(stageW * 0.22, 156, 295);
+
+  if (layout === 'tall') {
+    const w = Math.round(baseW * 0.9);
+    const h = Math.round(Math.min(baseW * 1.18, stageH * (isShortStage ? 0.46 : 0.66)));
+    return { w, h };
   }
-  if (layout === 'tall') return { w: 196, h: 256 };
-  if (layout === 'wide') return { w: 274, h: 188 };
-  return { w: 218, h: 218 };
+  if (layout === 'wide') {
+    const w = Math.round(Math.min(baseW * 1.24, stageW * 0.48));
+    const h = Math.round(Math.min(baseW * 0.84, stageH * (isShortStage ? 0.44 : 0.56)));
+    return { w, h };
+  }
+  const side = Math.round(Math.min(baseW, stageH * (isShortStage ? 0.46 : 0.62)));
+  return { w: side, h: side };
 }
 
 function getHoverClasses(effect: CardHoverEffect): string {
@@ -94,6 +112,15 @@ export function FeaturedWorkSection({ projects }: FeaturedWorkSectionProps) {
     });
   }, []);
 
+  const applyCardBoxSizes = useCallback((dimsList: Array<{ w: number; h: number }>) => {
+    dimsList.forEach((dims, idx) => {
+      const el = cardRefs.current[idx];
+      if (!el) return;
+      el.style.width = `${dims.w}px`;
+      el.style.height = `${dims.h}px`;
+    });
+  }, []);
+
   const resetPositions = useCallback(() => {
     const stage = stageRef.current;
     const bodies = bodiesRef.current;
@@ -102,19 +129,20 @@ export function FeaturedWorkSection({ projects }: FeaturedWorkSectionProps) {
     const width = stage.clientWidth;
     const height = stage.clientHeight;
     const cols = width < 640 ? 2 : 3;
+    const rowStep = Math.max(110, (height - 40) / (width < 640 ? 3 : 2));
 
     bodies.forEach((body, idx) => {
       const col = idx % cols;
       const row = Math.floor(idx / cols);
       const cellW = width / cols;
-      const dims = dimsRef.current[idx] || { w: 210, h: 210 };
+      const dims = dimsRef.current[idx] || { w: 180, h: 180 };
       const x = Math.max(
         dims.w / 2 + 12,
         Math.min(width - dims.w / 2 - 12, cellW * (col + 0.5) + (idx % 2 === 0 ? -10 : 10))
       );
       const y = Math.max(
         dims.h / 2 + 16,
-        Math.min(height - dims.h / 2 - 16, 130 + row * 225)
+        Math.min(height - dims.h / 2 - 16, dims.h / 2 + 24 + row * rowStep)
       );
       Matter.Body.setPosition(body, { x, y });
       Matter.Body.setVelocity(body, { x: (idx - 2) * 0.55, y: 0 });
@@ -130,8 +158,8 @@ export function FeaturedWorkSection({ projects }: FeaturedWorkSectionProps) {
     if (!stage) return;
 
     const width = stage.clientWidth || 960;
-    const height = stage.clientHeight || 580;
-    const isMobile = width < 640;
+    const height = stage.clientHeight || 540;
+    const isPhone = width < 640;
 
     const engine = Matter.Engine.create({
       gravity: { x: 0, y: 0.24, scale: 0.001 },
@@ -159,10 +187,14 @@ export function FeaturedWorkSection({ projects }: FeaturedWorkSectionProps) {
     ];
 
     let walls = createWalls(width, height);
-    const cols = isMobile ? 2 : 3;
+    const cols = isPhone ? 2 : 3;
+    const rowStep = Math.max(110, (height - 40) / (isPhone ? 3 : 2));
 
-    const dimsList = displayedProjects.map((p) => getCardDimensions(p.cardLayout, isMobile));
+    const dimsList = displayedProjects.map((p) =>
+      computeCardDimensions(p.cardLayout, width, height)
+    );
     dimsRef.current = dimsList;
+    applyCardBoxSizes(dimsList);
 
     const bodies = displayedProjects.map((_, idx) => {
       const { w: cardW, h: cardH } = dimsList[idx];
@@ -170,12 +202,12 @@ export function FeaturedWorkSection({ projects }: FeaturedWorkSectionProps) {
       const row = Math.floor(idx / cols);
       const cellW = width / cols;
       const startX = Math.max(
-        cardW / 2 + 16,
-        Math.min(width - cardW / 2 - 16, cellW * (col + 0.5))
+        cardW / 2 + 12,
+        Math.min(width - cardW / 2 - 12, cellW * (col + 0.5))
       );
       const startY = Math.max(
         cardH / 2 + 16,
-        Math.min(height - cardH / 2 - 16, 130 + row * 225)
+        Math.min(height - cardH / 2 - 16, cardH / 2 + 24 + row * rowStep)
       );
       const initialAngle = ((idx % 2 === 0 ? -1 : 1) * (2.5 + idx * 1.6) * Math.PI) / 180;
 
@@ -234,18 +266,37 @@ export function FeaturedWorkSection({ projects }: FeaturedWorkSectionProps) {
       walls = createWalls(nextW, nextH);
       Matter.Composite.add(engine.world, walls);
 
+      const nextDimsList = displayedProjects.map((p) =>
+        computeCardDimensions(p.cardLayout, nextW, nextH)
+      );
+
       bodies.forEach((body, idx) => {
-        const dims = dimsRef.current[idx] || { w: 210, h: 210 };
+        const prevDims = dimsRef.current[idx];
+        const nextDims = nextDimsList[idx];
+        if (
+          prevDims &&
+          nextDims &&
+          (Math.abs(prevDims.w - nextDims.w) > 0.5 || Math.abs(prevDims.h - nextDims.h) > 0.5)
+        ) {
+          const savedAngle = body.angle;
+          Matter.Body.setAngle(body, 0);
+          Matter.Body.scale(body, nextDims.w / prevDims.w, nextDims.h / prevDims.h);
+          Matter.Body.setAngle(body, savedAngle);
+        }
+        const safeDims = nextDims || prevDims || { w: 180, h: 180 };
         const clampedX = Math.max(
-          dims.w / 2 + 12,
-          Math.min(nextW - dims.w / 2 - 12, body.position.x)
+          safeDims.w / 2 + 12,
+          Math.min(nextW - safeDims.w / 2 - 12, body.position.x)
         );
         const clampedY = Math.max(
-          dims.h / 2 + 12,
-          Math.min(nextH - dims.h / 2 - 12, body.position.y)
+          safeDims.h / 2 + 12,
+          Math.min(nextH - safeDims.h / 2 - 12, body.position.y)
         );
         Matter.Body.setPosition(body, { x: clampedX, y: clampedY });
       });
+
+      dimsRef.current = nextDimsList;
+      applyCardBoxSizes(nextDimsList);
       syncDomOnce();
     });
 
@@ -261,7 +312,7 @@ export function FeaturedWorkSection({ projects }: FeaturedWorkSectionProps) {
       engineRef.current = null;
       bodiesRef.current = [];
     };
-  }, [layoutSignature, displayedProjects, reducedMotion, syncDomOnce]);
+  }, [layoutSignature, displayedProjects, reducedMotion, syncDomOnce, applyCardBoxSizes]);
 
   const handleCardPointerDown = (projectId: string, e: React.PointerEvent) => {
     pointerDownPos.current = { x: e.clientX, y: e.clientY };
@@ -284,28 +335,28 @@ export function FeaturedWorkSection({ projects }: FeaturedWorkSectionProps) {
   return (
     <section
       id="work"
-      className="relative z-10 bg-[#07050d] px-4 py-24 sm:px-8 sm:py-32"
+      className="section-pad relative z-10 bg-[#07050d]"
     >
-      <div className="mx-auto max-w-6xl">
+      <div className="site-container">
         <div className="text-center">
           <p className="font-mono-label text-[11px] font-medium text-[#A78BFA]">
             FEATURED WORK
           </p>
           <h2
             className="font-display mt-4 text-balance font-extrabold leading-[0.98] tracking-tight text-white"
-            style={{ fontSize: 'clamp(2.25rem, 6vw, 4.75rem)' }}
+            style={{ fontSize: 'clamp(1.95rem, min(6vw, 8svh), 4.75rem)' }}
           >
             Five live sites.
             <br />
             <span className="text-[#A78BFA]">Go play.</span>
           </h2>
-          <p className="font-mono-label mt-5 text-[10px] text-white/55 sm:text-xs">
+          <p className="font-mono-label mt-4 text-[10px] text-white/55 sm:mt-5 sm:text-xs">
             GRAB THEM. THROW THEM. CLICK ONE TO OPEN ITS PAGE.
           </p>
         </div>
 
-        {/* Browser Window Frame */}
-        <div className="mt-12 overflow-hidden rounded-[22px] border border-violet-500/30 bg-[#0b0814] shadow-[0_0_80px_rgba(139,92,246,0.18),0_28px_80px_rgba(0,0,0,0.8)]">
+        {/* Browser Window Frame: 4/5 portrait phones -> 16/9 desktop/tablet */}
+        <div className="mt-10 overflow-hidden rounded-[22px] border border-violet-500/30 bg-[#0b0814] shadow-[0_0_80px_rgba(139,92,246,0.18),0_28px_80px_rgba(0,0,0,0.8)] sm:mt-12">
           <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/[0.08] bg-[#100c1c] px-4 py-3 sm:px-6">
             <div className="flex items-center gap-2">
               <span className="h-3 w-3 rounded-full bg-[#ff5f57]" />
@@ -313,7 +364,7 @@ export function FeaturedWorkSection({ projects }: FeaturedWorkSectionProps) {
               <span className="h-3 w-3 rounded-full bg-[#28c840]" />
             </div>
 
-            <div className="flex flex-1 items-center justify-center">
+            <div className="flex min-w-0 flex-1 items-center justify-center">
               <div className="w-full max-w-xs truncate rounded-lg border border-white/[0.08] bg-[#07050d]/80 px-4 py-1 text-center font-mono text-xs text-white/65">
                 talha.dev/work
               </div>
@@ -323,7 +374,7 @@ export function FeaturedWorkSection({ projects }: FeaturedWorkSectionProps) {
               <button
                 type="button"
                 onClick={resetPositions}
-                className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.04] px-3 py-1.5 font-mono text-[11px] text-white/75 transition-colors hover:border-violet-400/40 hover:text-white"
+                className="inline-flex min-h-[44px] shrink-0 items-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.04] px-3.5 py-2 font-mono text-[11px] text-white/75 transition-colors hover:border-violet-400/40 hover:text-white active:scale-95"
               >
                 <RotateCcw className="h-3.5 w-3.5 text-[#A78BFA]" />
                 <span>Reset</span>
@@ -423,7 +474,7 @@ export function FeaturedWorkSection({ projects }: FeaturedWorkSectionProps) {
           ) : (
             <div
               ref={stageRef}
-              className="relative h-[540px] w-full select-none overflow-hidden bg-[radial-gradient(circle_at_50%_40%,rgba(139,92,246,0.1)_0%,rgba(7,5,13,0.98)_75%)] sm:h-[600px]"
+              className="work-stage-aspect relative w-full select-none overflow-hidden bg-[radial-gradient(circle_at_50%_40%,rgba(139,92,246,0.1)_0%,rgba(7,5,13,0.98)_75%)]"
               style={{ touchAction: 'pan-y' }}
             >
               <div
@@ -444,8 +495,6 @@ export function FeaturedWorkSection({ projects }: FeaturedWorkSectionProps) {
                   project.category === 'Editing' || project.videoIds.length > 0;
                 const isDragging = draggingId === project.id;
                 const isHovered = hoveredId === project.id;
-                const desktopDims = getCardDimensions(project.cardLayout, false);
-                const mobileDims = getCardDimensions(project.cardLayout, true);
 
                 return (
                   <div
@@ -467,25 +516,18 @@ export function FeaturedWorkSection({ projects }: FeaturedWorkSectionProps) {
                       }
                     }}
                     aria-label={`Open ${project.title} project page in new tab`}
-                    style={
-                      {
-                        touchAction: 'none',
-                        '--card-w-mobile': `${mobileDims.w}px`,
-                        '--card-h-mobile': `${mobileDims.h}px`,
-                        '--card-w-desktop': `${desktopDims.w}px`,
-                        '--card-h-desktop': `${desktopDims.h}px`,
-                        borderColor: isDragging || isHovered
-                          ? project.accentColor
-                          : `${project.accentColor}45`,
-                        boxShadow: isDragging
-                          ? `0 24px 60px ${project.accentColor}55`
-                          : isHovered
-                            ? `0 20px 48px ${project.accentColor}38`
-                            : '0 18px 40px rgba(0,0,0,0.65)',
-                        background: project.gradient,
-                      } as React.CSSProperties
-                    }
-                    className={`physics-card group absolute top-0 left-0 flex h-[var(--card-h-mobile)] w-[var(--card-w-mobile)] flex-col overflow-hidden rounded-[16px] border transition-[border-color,box-shadow] duration-200 will-change-transform focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 sm:h-[var(--card-h-desktop)] sm:w-[var(--card-w-desktop)] ${
+                    style={{
+                      touchAction: 'none',
+                      borderColor:
+                        isDragging || isHovered ? project.accentColor : `${project.accentColor}45`,
+                      boxShadow: isDragging
+                        ? `0 24px 60px ${project.accentColor}55`
+                        : isHovered
+                          ? `0 20px 48px ${project.accentColor}38`
+                          : '0 18px 40px rgba(0,0,0,0.65)',
+                      background: project.gradient,
+                    }}
+                    className={`physics-card group absolute top-0 left-0 flex flex-col overflow-hidden rounded-[16px] border transition-[border-color,box-shadow] duration-200 will-change-transform focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 ${
                       isDragging ? 'z-30 cursor-grabbing' : 'z-10 cursor-grab'
                     }`}
                   >
@@ -557,7 +599,7 @@ export function FeaturedWorkSection({ projects }: FeaturedWorkSectionProps) {
                       )}
                     </div>
 
-                    <div className="flex shrink-0 items-center justify-between gap-2 bg-[#0b0814]/90 p-3 backdrop-blur-md sm:p-3.5">
+                    <div className="flex shrink-0 items-center justify-between gap-2 bg-[#0b0814]/90 p-2.5 backdrop-blur-md sm:p-3.5">
                       <div className="min-w-0">
                         <p
                           className="truncate font-mono text-[9px] uppercase tracking-wider sm:text-[10px]"

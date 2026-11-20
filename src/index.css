@@ -10,17 +10,165 @@
   --color-gold-accent: #d4af37;
 }
 
+:root {
+  --gutter: clamp(1rem, 4vw, 4rem);
+  --nav-h: 68px;
+  --section-py: clamp(3.75rem, 9svh, 8.75rem);
+  --container-max: 1280px;
+}
+
+@media (min-width: 1921px) {
+  :root {
+    --container-max: 1600px;
+  }
+}
+
+@media (max-height: 699px) {
+  :root {
+    --nav-h: 56px;
+  }
+}
+
+@media (max-height: 800px) {
+  :root {
+    --section-py: clamp(3rem, 7svh, 6.25rem);
+  }
+}
+
+@media (max-height: 720px) {
+  :root {
+    --section-py: clamp(2.5rem, 6svh, 4.75rem);
+  }
+}
+
+@media (max-height: 640px) {
+  :root {
+    --section-py: clamp(2rem, 5svh, 3.75rem);
+  }
+}
+
+@media (max-height: 520px) {
+  :root {
+    --section-py: clamp(1.5rem, 4svh, 2.75rem);
+  }
+}
+
 @layer base {
   html {
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+    font-size: clamp(14px, 0.55vw + 11px, 18px);
     background-color: #07050d;
     color: #f8fafc;
     font-family: var(--font-sans);
+    overflow-x: clip;
+    scrollbar-gutter: auto;
     scroll-behavior: auto;
+    -webkit-text-size-adjust: 100%;
   }
 
   body {
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
     background-color: #07050d;
     overflow-x: clip;
+    scrollbar-gutter: auto;
+  }
+
+  img,
+  video {
+    max-width: 100%;
+  }
+
+  section,
+  section[id],
+  div[id="contact"] {
+    scroll-margin-top: var(--nav-h, 68px);
+  }
+}
+
+/* Shared fluid site container (max 1280px, expanding to 1600px on 2K/4K/ultrawide) */
+.site-container {
+  width: min(calc(100% - 2 * var(--gutter)), var(--container-max));
+  margin-inline: auto;
+}
+
+.section-pad {
+  padding-block: var(--section-py);
+}
+
+.wrap-anywhere {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+/* Explicit --vh pinned stage height (fallback 100svh) so GSAP pin-spacer never collapses percentage heights */
+.h-pin-stage {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  height: var(--vh, 100svh);
+  overflow: hidden;
+}
+
+/* Keep pin-spacer full width without overriding its height or transform */
+.pin-spacer {
+  width: 100% !important;
+}
+
+/* Fixed responsive header sizing with safe-area-inset-top */
+.site-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  z-index: 9999;
+  padding-top: env(safe-area-inset-top, 0px);
+  height: calc(68px + env(safe-area-inset-top, 0px));
+}
+
+@media (max-height: 699px) {
+  .site-header {
+    height: calc(56px + env(safe-area-inset-top, 0px));
+  }
+}
+
+/* Featured Work stage ratio: 4/5 portrait phones, 16/9 tablet/desktop */
+.work-stage-aspect {
+  aspect-ratio: 4 / 5;
+}
+
+@media (min-width: 640px) {
+  .work-stage-aspect {
+    aspect-ratio: 16 / 9;
+    max-height: min(76svh, 660px);
+  }
+}
+
+/* Hover-only interactions wrapped in hover media query */
+@media (hover: hover) and (pointer: fine) {
+  .hover-card-lift:hover {
+    transform: translateY(-2px);
+    border-color: rgba(167, 139, 250, 0.45);
+    background-color: rgba(255, 255, 255, 0.05);
+  }
+  .hover-icon-float:hover {
+    transform: translateY(-2px);
+    border-color: rgba(167, 139, 250, 0.6);
+    background-color: rgba(139, 92, 246, 0.15);
+    color: #ffffff;
+    box-shadow: 0 0 20px rgba(139, 92, 246, 0.45);
+  }
+}
+
+/* Disable heavy overlays & 3D floor reflections on touch devices and small screens */
+@media (pointer: coarse), (max-width: 767px) {
+  .film-grain,
+  .hide-coarse {
+    display: none !important;
   }
 }
 

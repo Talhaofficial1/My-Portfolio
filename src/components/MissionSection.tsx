@@ -50,14 +50,17 @@ export function MissionSection() {
     <section
       id="mission"
       ref={sectionRef}
-      className="relative z-10 bg-[#07050d] px-5 py-28 sm:px-8 sm:py-36"
+      className="section-pad relative z-10 bg-[#07050d]"
     >
-      <div className="mx-auto max-w-4xl text-center">
+      <div className="site-container text-center">
         <p className="font-mono-label text-[11px] font-medium text-[#A78BFA]">
           THE MISSION
         </p>
 
-        <h2 className="mt-7 text-balance text-2xl font-semibold leading-[1.35] tracking-tight text-white/25 sm:text-4xl sm:leading-[1.3] md:text-[2.75rem]">
+        <h2
+          className="mx-auto mt-6 max-w-[min(100%,26ch)] text-balance font-semibold leading-[1.32] tracking-tight text-white/25 sm:mt-7"
+          style={{ fontSize: 'clamp(1.38rem, 0.85rem + 2.4vw, 3.1rem)' }}
+        >
           {MISSION_WORDS.map((word, idx) => (
             <span
               key={`${word.text}-${idx}`}

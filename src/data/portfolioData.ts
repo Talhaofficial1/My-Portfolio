@@ -10,6 +10,8 @@ import { SOCIAL_URLS } from './social';
  *   (Note: project-2.png preserves your custom portrait/desk photo untouched.)
  * - YouTube videos: paste 11-character IDs (or full YouTube links) into `videoIds: ['...']`
  */
+export const LAPTOP_TOTAL_FRAMES = 120;
+
 export const PROFILE = {
   name: 'Muhammad Talha',
   brandShort: 'TS',
@@ -19,10 +21,13 @@ export const PROFILE = {
   whatsappNumber: '923221408422',
   whatsappDisplay: '0322-1408422',
   assets: {
-    logo: '/assets/aistudio/TS_Monogram_dark_neon_6d9e9b3b.png',
-    portrait: '/images/me.png',
-    sceneDesk: '/images/scene-desk.png?v=2',
-    sceneLaptop: '/images/scene-laptop.png',
+    logo: '/assets/aistudio/TS_Monogram_dark_neon_6d9e9b3b.png?v=23',
+    portrait: '/images/me.png?v=23',
+    sceneDesk: '/images/scene-desk.png?v=23',
+    sceneLaptop: '/images/scene-laptop.png?v=23',
+    laptopSeqDir: '/images/laptop-seq',
+    laptopSeqVersion: 'v=23',
+    laptopVideo: '/videos/laptop-scrub.mp4?v=23',
   },
   socials: {
     youtube: SOCIAL_URLS.youtube,
@@ -141,8 +146,8 @@ export const DEFAULT_PROJECTS: ProjectItem[] = [
       'Bilingual Quranic reflection & translation reading experience built for calm daily study.',
     category: 'Development',
     tags: ['React', 'Tailwind CSS', 'Typography'],
-    thumbnail: '/images/projects/project-1.png',
-    previewImage: '/images/projects/project-1.png',
+    thumbnail: '/images/projects/project-1.png?v=23',
+    previewImage: '/images/projects/project-1.png?v=23',
     videoIds: [],
     liveUrl: SOCIAL_URLS.youtube,
     description:
@@ -168,8 +173,8 @@ export const DEFAULT_PROJECTS: ProjectItem[] = [
     tagline: 'Editorial dark-mode showcase & project inquiry platform for a Lahore architecture firm.',
     category: 'Development',
     tags: ['Next.js', 'GSAP', 'Brand Web'],
-    thumbnail: '/images/projects/project-2.png?v=2',
-    previewImage: '/images/projects/project-2.png?v=2',
+    thumbnail: '/images/projects/project-2.png?v=23',
+    previewImage: '/images/projects/project-2.png?v=23',
     videoIds: [],
     description:
       'Editorial architectural showcase engineered for crisp structural photography, scroll-paced case studies, and structured client consultation requests.',
@@ -195,8 +200,8 @@ export const DEFAULT_PROJECTS: ProjectItem[] = [
     tagline: 'Specialty coffee & artisanal chai storefront with instant cart choreography.',
     category: 'Development',
     tags: ['E-Commerce', 'UI Engineering', 'Responsive'],
-    thumbnail: '/images/projects/project-3.png',
-    previewImage: '/images/projects/project-3.png',
+    thumbnail: '/images/projects/project-3.png?v=23',
+    previewImage: '/images/projects/project-3.png?v=23',
     videoIds: [],
     description:
       'Clean product catalog and direct ordering experience crafted for fast checkout on mobile connections while preserving warm editorial packaging aesthetics.',
@@ -221,8 +226,8 @@ export const DEFAULT_PROJECTS: ProjectItem[] = [
     tagline: 'Kinetic typography, clean documentary pacing, and serene nature visuals for YouTube.',
     category: 'Editing',
     tags: ['Premiere Pro', 'After Effects', 'YouTube'],
-    thumbnail: '/images/projects/project-4.png',
-    previewImage: '/images/projects/project-4.png',
+    thumbnail: '/images/projects/project-4.png?v=23',
+    previewImage: '/images/projects/project-4.png?v=23',
     videoIds: [],
     liveUrl: SOCIAL_URLS.youtube,
     description:
@@ -248,8 +253,8 @@ export const DEFAULT_PROJECTS: ProjectItem[] = [
     tagline: 'Complete modular UI design system, monogram identity, and responsive product guidelines.',
     category: 'Design',
     tags: ['Brand Identity', 'Design System', 'Figma'],
-    thumbnail: '/images/projects/project-5.png',
-    previewImage: '/images/projects/project-5.png',
+    thumbnail: '/images/projects/project-5.png?v=23',
+    previewImage: '/images/projects/project-5.png?v=23',
     videoIds: [],
     description:
       'Comprehensive visual identity and Figma component library spanning custom geometric monogram construction, typographic scale tokens, and dark-mode dashboard templates.',
@@ -279,7 +284,7 @@ export function resolveProjectThumbnail(project: ProjectItem): string {
   if (isValidImageSrc(project.previewImage)) {
     return project.previewImage;
   }
-  return '/images/projects/project-1.png';
+  return '/images/projects/project-1.png?v=23';
 }
 
 export function resolveProjectPreview(project: ProjectItem): string {
